@@ -1,0 +1,40 @@
+services:
+  autentikasi:
+    build:
+      context: ./autentikasi
+    volumes:
+      - ./autentikasi:/var/www
+    ports:
+      - "8001:8000"
+    command: php artisan serve --host=0.0.0.0 --port=8000
+    environment:
+      DB_CONNECTION: mysql
+      DB_HOST: autentikasi_db
+      DB_PORT: 3306
+      DB_DATABASE: autentikasi_db
+      DB_USERNAME: root
+      DB_PASSWORD: root
+    depends_on:
+      - autentikasi_db
+
+  autentikasi_db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: autentikasi_db
+    ports:
+      - "3306:3306"
+    volumes:
+      - container_autentikasi_db:/var/lib/mysql   
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOSTS: autentikasi_db
+      PMA_USER: root
+volumes:
+  container_autentikasi_db:                        
