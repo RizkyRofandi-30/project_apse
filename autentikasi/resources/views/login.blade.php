@@ -41,7 +41,7 @@
             <!-- Register Link -->
             <p class="text-center text-sm">
                 Belum punya akun?
-                <a href="#" class="text-blue-600 hover:underline">Register</a>
+                <a href="http://localhost/" class="text-blue-600 hover:underline">Register</a>
             </p>
 
         </form>

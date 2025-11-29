@@ -4,10 +4,35 @@ services:
       context: ./autentikasi
       dockerfile: dockerfile
     volumes:
-      - ./autentikasi:/var/www
+      - ./autentikasi:/var/www/app
+      - vendor-autentikasi:/var/www/app/vendor
+      - node-autentikasi:/var/www/app/node_modules
     ports:
       - "8001:8000"
-    command: php artisan serve --host=0.0.0.0 --port=8000
+    command: >
+      sh -c "
+      cd /var/www/app &&
+
+      echo '>>> Checking composer vendor directory...' &&
+      if [ ! -d vendor ] || [ -z \"$(ls -A vendor)\" ]; then
+          echo '>>> Running composer install...';
+          composer install || exit 1;
+      else
+          echo '>>> Vendor exists, skipping composer install.';
+      fi;
+
+      echo '>>> Checking .env...' &&
+      [ -f .env ] || cp .env.example .env;
+
+      echo '>>> Generating key...' &&
+      php artisan key:generate;
+
+      echo '>>> Running migrations...' &&
+      php artisan migrate --force;
+
+      echo '>>> Starting Laravel server...' &&
+      php artisan serve --host=0.0.0.0 --port=8000
+      "    
     environment:
       DB_CONNECTION: mysql
       DB_HOST: autentikasi_db
@@ -31,16 +56,51 @@ services:
     networks:
       - microservices_net
 
-
   ptsp:
     build:
       context: ./ptsp
       dockerfile: dockerfile
     volumes:
-      - ./ptsp:/var/www
+      - ./ptsp:/var/www/app
+      - vendor-ptsp:/var/www/app/vendor
+      - node-ptsp:/var/www/app/node_modules
     ports:
-      - "8002:8000"    
-    command: php artisan serve --host=0.0.0.0 --port=8000
+      - "8002:8000"
+    command: >
+      sh -c "
+      cd /var/www/app &&
+
+      echo '>>> Checking vendor directory...' &&
+      if [ ! -d vendor ] || [ -z \"$(ls -A vendor)\" ]; then
+          echo '>>> Running composer install...';
+          composer install || exit 1;
+      else
+          echo '>>> Vendor exists, skipping composer install.';
+      fi;
+
+      echo '>>> Checking .env...' &&
+      [ -f .env ] || cp .env.example .env;
+
+      echo '>>> Checking APP_KEY...' &&
+      if grep -q '^APP_KEY=$' .env || ! grep -q '^APP_KEY=' .env; then
+          echo '>>> APP_KEY missing. Generating new key...';
+          php artisan key:generate;
+      else
+          echo '>>> APP_KEY already exists. Skipping key:generate.';
+      fi;
+
+      echo '>>> Checking migration status...' &&
+      if php artisan migrate:status | grep -q '| Y'; then
+          echo '>>> Migrations already applied. Skipping migrate.';
+      else
+          echo '>>> No migrations applied. Running migrate...';
+          php artisan migrate --force;
+      fi;
+
+      echo '>>> Starting Laravel server...' &&
+      php artisan serve --host=0.0.0.0 --port=8000
+      "
+
     environment:
       DB_CONNECTION: mysql
       DB_HOST: ptsp_db
@@ -64,15 +124,13 @@ services:
     networks:
       - microservices_net
 
-
-  # Container untuk tampilan ui php my admin
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     restart: unless-stopped
     ports:
       - "8080:80"
     environment:
-      PMA_HOSTS: autentikasi_db,ptsp_db  
+      PMA_HOSTS: autentikasi_db,ptsp_db
       PMA_USER: root
       PMA_PASSWORD: root
     networks:
@@ -86,17 +144,18 @@ services:
     ports:
       - "80:80"
     depends_on:
-      - ptsp
       - autentikasi
+      - ptsp
     networks:
       - microservices_net
 
-# Jaringan microservices
 networks:
   microservices_net:
 
-
-# Menyimpan record db dari masing-maasing layanan
 volumes:
   autentikasi_db_data:
   ptsp_db_data:
+  vendor-autentikasi:
+  node-autentikasi:
+  vendor-ptsp:
+  node-ptsp:
