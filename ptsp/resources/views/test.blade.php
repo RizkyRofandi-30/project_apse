@@ -26,7 +26,16 @@
 
             <a href="http://localhost/autentikasi/" target="_blank"
                 class="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-full shadow-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-indigo-500 transition duration-300 ease-in-out transform hover:scale-105">
-                Lanjutkan ke Tujuan ➡️
+                Lanjutkan ke autentikasi
+            </a>
+
+            <a href="http://localhost/medlicense/" target="_blank"
+                class="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-full shadow-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-indigo-500 transition duration-300 ease-in-out transform hover:scale-105">
+                Lanjutkan ke medlicense
+            </a>
+            <a href="http://localhost/healthygate/" target="_blank"
+                class="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-full shadow-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-indigo-500 transition duration-300 ease-in-out transform hover:scale-105">
+                Lanjutkan ke healthy gate
             </a>
 
             <p class="text-sm text-gray-400 mt-4">

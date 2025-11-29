@@ -13,7 +13,7 @@ services:
       sh -c "
       cd /var/www/app &&
 
-      echo '>>> Checking composer vendor directory...' &&
+      echo '>>> Checking vendor directory...' &&
       if [ ! -d vendor ] || [ -z \"$(ls -A vendor)\" ]; then
           echo '>>> Running composer install...';
           composer install || exit 1;
@@ -24,15 +24,26 @@ services:
       echo '>>> Checking .env...' &&
       [ -f .env ] || cp .env.example .env;
 
-      echo '>>> Generating key...' &&
-      php artisan key:generate;
+      echo '>>> Checking APP_KEY...' &&
+      if grep -q '^APP_KEY=$' .env || ! grep -q '^APP_KEY=' .env; then
+          echo '>>> APP_KEY missing. Generating new key...';
+          php artisan key:generate;
+      else
+          echo '>>> APP_KEY already exists. Skipping key:generate.';
+      fi;
 
-      echo '>>> Running migrations...' &&
-      php artisan migrate --force;
+      echo '>>> Checking migration status...' &&
+      if php artisan migrate:status | grep -q '| Y'; then
+          echo '>>> Migrations already applied. Skipping migrate.';
+      else
+          echo '>>> No migrations applied. Running migrate...';
+          php artisan migrate --force;
+      fi;
 
       echo '>>> Starting Laravel server...' &&
       php artisan serve --host=0.0.0.0 --port=8000
-      "    
+      "
+        
     environment:
       DB_CONNECTION: mysql
       DB_HOST: autentikasi_db
@@ -53,6 +64,142 @@ services:
       MYSQL_DATABASE: autentikasi_db
     volumes:
       - autentikasi_db_data:/var/lib/mysql
+    networks:
+      - microservices_net
+  
+  healthygate:
+    build:
+      context: ./healthygate
+      dockerfile: dockerfile
+    volumes:
+      - ./healthygate:/var/www/app
+      - vendor-healthygate:/var/www/app/vendor
+      - node-healthygate:/var/www/app/node_modules
+    ports:
+      - "8003:8000"
+    command: >
+      sh -c "
+      cd /var/www/app &&
+
+      echo '>>> Checking vendor directory...' &&
+      if [ ! -d vendor ] || [ -z \"$(ls -A vendor)\" ]; then
+          echo '>>> Running composer install...';
+          composer install || exit 1;
+      else
+          echo '>>> Vendor exists, skipping composer install.';
+      fi;
+
+      echo '>>> Checking .env...' &&
+      [ -f .env ] || cp .env.example .env;
+
+      echo '>>> Checking APP_KEY...' &&
+      if grep -q '^APP_KEY=$' .env || ! grep -q '^APP_KEY=' .env; then
+          echo '>>> APP_KEY missing. Generating new key...';
+          php artisan key:generate;
+      else
+          echo '>>> APP_KEY already exists. Skipping key:generate.';
+      fi;
+
+      echo '>>> Checking migration status...' &&
+      if php artisan migrate:status | grep -q '| Y'; then
+          echo '>>> Migrations already applied. Skipping migrate.';
+      else
+          echo '>>> No migrations applied. Running migrate...';
+          php artisan migrate --force;
+      fi;
+
+      echo '>>> Starting Laravel server...' &&
+      php artisan serve --host=0.0.0.0 --port=8000
+      "
+        
+    environment:
+      DB_CONNECTION: mysql
+      DB_HOST: healthygate_db
+      DB_PORT: 3306
+      DB_DATABASE: healthygate_db
+      DB_USERNAME: root
+      DB_PASSWORD: root
+    depends_on:
+      - healthygate_db
+    networks:
+      - microservices_net
+
+  healthygate_db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: healthygate_db
+    volumes:
+      - healthygate_db_data:/var/lib/mysql
+    networks:
+      - microservices_net
+
+  medlicense:
+    build:
+      context: ./medlicense
+      dockerfile: dockerfile
+    volumes:
+      - ./medlicense:/var/www/app
+      - vendor-medlicense:/var/www/app/vendor
+      - node-medlicense:/var/www/app/node_modules
+    ports:
+      - "8004:8000"
+    command: >
+      sh -c "
+      cd /var/www/app &&
+
+      echo '>>> Checking vendor directory...' &&
+      if [ ! -d vendor ] || [ -z \"$(ls -A vendor)\" ]; then
+          echo '>>> Running composer install...';
+          composer install || exit 1;
+      else
+          echo '>>> Vendor exists, skipping composer install.';
+      fi;
+
+      echo '>>> Checking .env...' &&
+      [ -f .env ] || cp .env.example .env;
+
+      echo '>>> Checking APP_KEY...' &&
+      if grep -q '^APP_KEY=$' .env || ! grep -q '^APP_KEY=' .env; then
+          echo '>>> APP_KEY missing. Generating new key...';
+          php artisan key:generate;
+      else
+          echo '>>> APP_KEY already exists. Skipping key:generate.';
+      fi;
+
+      echo '>>> Checking migration status...' &&
+      if php artisan migrate:status | grep -q '| Y'; then
+          echo '>>> Migrations already applied. Skipping migrate.';
+      else
+          echo '>>> No migrations applied. Running migrate...';
+          php artisan migrate --force;
+      fi;
+
+      echo '>>> Starting Laravel server...' &&
+      php artisan serve --host=0.0.0.0 --port=8000
+      "
+        
+    environment:
+      DB_CONNECTION: mysql
+      DB_HOST: medlicense_db
+      DB_PORT: 3306
+      DB_DATABASE: medlicense_db
+      DB_USERNAME: root
+      DB_PASSWORD: root
+    depends_on:
+      - medlicense_db
+    networks:
+      - microservices_net
+
+  medlicense_db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: medlicense_db
+    volumes:
+      - medlicense_db_data:/var/lib/mysql
     networks:
       - microservices_net
 
@@ -130,7 +277,7 @@ services:
     ports:
       - "8080:80"
     environment:
-      PMA_HOSTS: autentikasi_db,ptsp_db
+      PMA_HOSTS: autentikasi_db, ptsp_db, healthygate_db, medlicense_db
       PMA_USER: root
       PMA_PASSWORD: root
     networks:
@@ -144,8 +291,10 @@ services:
     ports:
       - "80:80"
     depends_on:
-      - autentikasi
       - ptsp
+      - autentikasi
+      - medlicense
+      - healthygate
     networks:
       - microservices_net
 
@@ -154,8 +303,18 @@ networks:
 
 volumes:
   autentikasi_db_data:
-  ptsp_db_data:
   vendor-autentikasi:
   node-autentikasi:
+
+  ptsp_db_data:
   vendor-ptsp:
   node-ptsp:
+
+  healthygate_db_data:
+  vendor-healthygate:
+  node-healthygate:
+
+  medlicense_db_data:
+  vendor-medlicense:
+  node-medlicense:
+
