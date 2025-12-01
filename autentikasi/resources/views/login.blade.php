@@ -1,52 +1,168 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html> <html> <head> <link href="https://fonts.googleapis.com/css?family=Ubuntu&display=swap" rel="stylesheet" /> <link href="https://fonts.googleapis.com/css?family=Inter&display=swap" rel="stylesheet" /> <link href="https://fonts.googleapis.com/css?family=Instrument+Sans&display=swap" rel="stylesheet" /> <link rel="stylesheet" href="css/main.css" /> <title>Login</title> <style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
 
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login Page</title>
+body {
+    font-family: Inter, sans-serif;
+    background: #fff;
+    height: 100vh;
+}
 
-    <!-- TailwindCSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
+/* === LAYOUT UTAMA 50–50 === */
+.container {
+    display: flex;
+    width: 100%;
+    height: 100vh; /* full layar */
+}
 
-<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+/* KIRI */
+.left {
+    flex: 1; /* otomatis 50% */
+    height: 100%;
+    overflow: hidden;
+}
 
-    <div class="w-full max-w-sm bg-white p-8 rounded-2xl shadow-lg">
-        <h2 class="text-2xl font-bold text-center mb-6">Login</h2>
+.left img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;   /* gambar fullscreen tanpa kosong */
+}
 
-        <form action="#" method="POST" class="space-y-5">
+/* KANAN */
+.right {
+    flex: 1; /* otomatis 50% */
+    height: 100%;
+    background: url("../images/v58_2402.png") center/cover no-repeat;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
-            <!-- Email -->
-            <div>
-                <label class="block mb-1 font-medium">Email</label>
-                <input type="email" name="email"
-                    class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    placeholder="Enter your email" required />
-            </div>
+/* CARD LOGIN */
+.login-card {
+    background: #1E3557;
+    width: 75%;  /* proporsional biar rapi */
+    max-width: 480px;
+    padding: 35px 25px;
+    border-radius: 20px;
+}
 
-            <!-- Password -->
-            <div>
-                <label class="block mb-1 font-medium">Password</label>
-                <input type="password" name="password"
-                    class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    placeholder="Enter your password" required />
-            </div>
+/* Title */
+.title {
+    color: #fff;
+    font-family: Ubuntu;
+    font-size: 32px;
+}
 
-            <!-- Login Button -->
-            <button class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition">
-                Login
-            </button>
+.subtitle {
+    color: #fff;
+    font-family: Ubuntu;
+    font-size: 16px;
+    margin-top: 5px;
+}
 
-            <!-- Register Link -->
-            <p class="text-center text-sm">
-                Belum punya akun?
-                <a href="http://localhost/" class="text-blue-600 hover:underline">Register</a>
-            </p>
+.desc {
+    color: #fff;
+    font-size: 20px;
+    text-align: center;
+    margin: 20px 0 30px;
+}
 
-        </form>
-    </div>
+/* INPUT */
+.input-group {
+    margin-bottom: 20px;
+}
 
-</body>
+.input-group label {
+    color: #fff;
+    font-size: 16px;
+}
 
-</html>
+.input-box {
+    margin-top: 6px;
+    background: #fff;
+    height: 45px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    position: relative;
+}
+
+.input-box input {
+    width: 100%;
+    font-size: 15px;
+    border: none;
+    outline: none;
+    margin-left: 50px;
+}
+
+/* ICONS */
+.icon {
+    width: 35px;
+    height: 35px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    position: absolute;
+    left: 10px;
+}
+
+.email-icon {
+    background-image: url("../images/v58_2430.png");
+}
+
+.pass-icon {
+    background-image: url("../images/v58_2484.png");
+}
+
+.eye-icon {
+    background-image: url("../images/v58_2479.png");
+    right: 10px;
+    left: auto;
+    width: 22px;
+    height: 22px;
+    opacity: .7;
+    cursor: pointer;
+}
+
+/* Lupa Password */
+.forgot {
+    color: #fff;
+    font-size: 15px;
+    float: right;
+    margin-top: -10px;
+}
+
+/* BUTTON */
+.btn-login {
+    width: 100%;
+    height: 46px;
+    border-radius: 20px;
+    background: #F68700;
+    color: #fff;
+    font-size: 20px;
+    font-weight: bold;
+    border: none;
+    margin-top: 40px;
+    cursor: pointer;
+}
+
+/* REGISTER */
+.register {
+    margin-top: 20px;
+    text-align: center;
+    color: #fff;
+}
+
+.register a {
+    font-weight: bold;
+    margin-left: 5px;
+    cursor: pointer;
+}
+</style>
+ </head> <body> <div class="container"> <!-- Bagian kiri --> <div class="left"> <img src="images/v58_2447.png" alt="Login Image"/> </div> <!-- Bagian kanan --> <div class="right"> <div class="login-card"> <div class="title-box" style="display:flex;flex-direction:column;align-items:center;"> <h1 class="title">Selamat Datang</h1> <p class="subtitle">Silahkan Lakukan Pendaftaran</p> </div> <p class="desc">Silahkan Login Menggunakan Email Yang Sudah Terdaftar</p> <div class="input-group"> <label>Email</label> <div class="input-box"> <span class="icon email-icon"></span> <input type="text" placeholder="Masukkan Email"> </div> </div> <div class="input-group"> <label>Password</label> <div class="input-box"> <span class="icon pass-icon"></span> <input type="password" placeholder="Masukkan Password"> <span class="icon eye-icon"></span> </div> </div> <a class="forgot">Lupa Password?</a> <button class="btn-login">Masuk</button> <div class="register"> <span>Belum punya akun?</span> <a>Daftar Sekarang!</a> </div> </div> </div> </div> </body> </html> 
